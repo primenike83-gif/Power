@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F2A3D">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TrioTrade">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+<title>TrioTrade</title>
+<style>
+:root{
+  --ink:#0F2A3D; --ink-2:#4B6476; --mist:#EAF0F3; --card:#FFFFFF; --line:#D3DEE5;
+  --gain:#0E8F7A; --gain-bg:#DDF3EE; --loss:#D2453B; --loss-bg:#FBE4E1;
+  --warn:#B9770E; --warn-bg:#FCEFD4; --blue:#1F5FBF; --blue-bg:#E1EBF9;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--mist);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+body{min-height:100vh;padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+/* En-tête */
+.top{background:var(--ink);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 20px 22px}
+.top-row{display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:800;font-size:18px;letter-spacing:-.01em}
+.badge{font-size:13px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--warn-bg);color:var(--warn)}
+.badge.stop{background:var(--loss-bg);color:var(--loss)}
+.badge.run{background:var(--gain-bg);color:var(--gain)}
+.bal-label{margin-top:18px;font-size:14px;color:#A9BECC}
+.bal{font-size:44px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.top-stats{display:flex;gap:28px;margin-top:14px}
+.top-stats div span{display:block;font-size:13px;color:#A9BECC}
+.top-stats div b{font-size:18px;font-weight:700}
+.up{color:#5FD3B8}.down{color:#FF8D84}
+
+main{padding:16px 16px 0;max-width:640px;margin:0 auto}
+.note{background:var(--blue-bg);color:#16417F;border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:16px}
+h2{font-size:17px;font-weight:800;margin:22px 4px 10px;letter-spacing:-.01em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+
+/* Relais des 3 agents */
+.relay{position:relative;padding:6px 0}
+.agent{position:relative;display:grid;grid-template-columns:28px 1fr;gap:10px;padding:10px 0}
+.agent:not(:last-child)::before{content:"";position:absolute;left:13px;top:34px;bottom:-8px;width:2px;background:var(--line)}
+.dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;z-index:1}
+.dot.a{background:var(--blue)}.dot.t{background:var(--gain)}.dot.c{background:var(--ink)}
+.agent h3{font-size:15px;font-weight:800}
+.agent p{font-size:15px;color:var(--ink-2)}
+.coins{margin-top:8px;display:grid;gap:6px}
+.coin{display:flex;justify-content:space-between;align-items:center;background:var(--mist);border-radius:10px;padding:8px 10px;font-size:14px}
+.coin .v{font-weight:700}
+.chip{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;margin-left:8px}
+.chip.good{background:var(--gain-bg);color:var(--gain)}
+.chip.wait{background:var(--warn-bg);color:var(--warn)}
+.tone-bad{color:var(--loss);font-weight:700}
+.tone-good{color:var(--gain);font-weight:700}
+.tone-warn{color:var(--warn);font-weight:700}
+
+/* Limites */
+.limit{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:15px}
+.pips{display:flex;gap:6px}
+.pip{width:18px;height:18px;border-radius:50%;border:2px solid var(--line)}
+.pip.on{background:var(--loss);border-color:var(--loss)}
+.bar{height:8px;background:var(--mist);border-radius:6px;overflow:hidden;width:120px}
+.bar i{display:block;height:100%;background:var(--warn)}
+
+/* Position */
+.pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.pos-grid div{background:var(--mist);border-radius:10px;padding:8px 10px}
+.pos-grid span{display:block;font-size:13px;color:var(--ink-2)}
+.pos-grid b{font-size:15px}
+
+/* Journal */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat span{display:block;font-size:13px;color:var(--ink-2)}
+.stat b{font-size:20px;font-weight:800}
+.tr{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.tr:last-child{border-bottom:0}
+.tr small{display:block;color:var(--ink-2);font-size:13px}
+.amt{font-weight:800;font-size:16px}
+.gain{color:var(--gain)}.loss{color:var(--loss)}
+.empty{text-align:center;color:var(--ink-2);padding:26px 10px}
+
+/* Réglages */
+.field{display:grid;gap:6px;margin-bottom:14px}
+.field label{font-size:14px;font-weight:700}
+.field small{color:var(--ink-2);font-size:13px}
+input[type=text],input[type=number],input[type=password],select{width:100%;font:inherit;font-size:16px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check{display:flex;align-items:center;gap:10px;font-size:16px;padding:6px 0}
+.check input{width:22px;height:22px;accent-color:var(--gain)}
+.btn{display:inline-block;padding:12px 16px;border-radius:12px;font-weight:700;background:var(--ink);color:#fff}
+.btn.ghost{background:var(--mist);color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:var(--loss-bg);color:var(--loss)}
+.steps{padding-left:20px;display:grid;gap:6px;font-size:15px;color:var(--ink-2)}
+.warnbox{background:var(--warn-bg);color:#6E4608;border-radius:12px;padding:12px 14px;font-size:14px;margin-top:12px}
+
+/* Barre du bas */
+.dock{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 14px calc(8px + env(safe-area-inset-bottom));z-index:5}
+.stopbtn{display:block;width:100%;max-width:640px;margin:0 auto 8px;padding:16px;border-radius:14px;font-size:18px;font-weight:800;color:#fff;background:var(--loss);box-shadow:0 3px 0 #9E2C24}
+.stopbtn:active{transform:translateY(2px);box-shadow:0 1px 0 #9E2C24}
+.stopbtn.resume{background:var(--gain);box-shadow:0 3px 0 #0A6657}
+.stopbtn.resume:active{box-shadow:0 1px 0 #0A6657}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);max-width:640px;margin:0 auto}
+.tab{padding:8px 4px;font-size:14px;font-weight:700;color:var(--ink-2);border-radius:10px}
+.tab[aria-current=page]{color:var(--ink);background:var(--mist)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top" id="top"><span class="brand">TrioTrade</span></header>
+<main id="view"><p style="padding:24px 8px">Chargement de TrioTrade...</p>
+<noscript><p style="padding:8px;color:#D2453B;font-weight:700">Cette page ne peut pas démarrer ici. Ouvre-la depuis une adresse web (https) dans Chrome ou Safari, pas depuis un aperçu de fichier.</p></noscript></main>
+
+<nav class="dock" aria-label="Navigation">
+  <button class="stopbtn" id="stopbtn" data-act="stop" type="button"></button>
+  <div class="tabs">
+    <button class="tab" data-act="tab" data-tab="home" type="button">Accueil</button>
+    <button class="tab" data-act="tab" data-tab="journal" type="button">Journal</button>
+    <button class="tab" data-act="tab" data-tab="settings" type="button">Réglages</button>
+  </div>
+</nav>
+
+<script>
+(()=>{
+'use strict';
+/* ============ Données et réglages ============ */
+const LS='triotrade.v1';
+const NAMES={BTCUSDT:'Bitcoin',ETHUSDT:'Ethereum'};
+const DEF={capital:1000,riskPct:1,maxLossDay:2,weekLimit:5,startH:8,endH:22,rr:1.5,
+  syms:{BTCUSDT:true,ETHUSDT:true},tgToken:'',tgChat:''};
+const pad=n=>String(n).padStart(2,'0');
+const dkey=(d=new Date())=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const wkey=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return dkey(d)};
+const fresh=cap=>({bal:cap,start:cap,trades:[],pos:null,stopped:false,
+  dayKey:dkey(),dayLosses:0,dayPnl:0,dayTrades:0,weekKey:wkey(),weekPnl:0});
+let S=(()=>{
+  try{const s=JSON.parse(localStorage.getItem(LS));
+    if(s&&s.cfg){s.cfg={...DEF,...s.cfg,syms:{...DEF.syms,...(s.cfg.syms||{})}};return s}}catch(e){}
+  return {cfg:{...DEF,syms:{...DEF.syms}},...fresh(DEF.capital)};
+})();
+const V={tab:'home',analyses:[],err:false,gate:{ok:false,tone:'info',reason:'Démarrage...'},last:0,busy:false};
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}};
+
+/* ============ Utilitaires ============ */
+const nf=(x,d=2)=>x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const money=x=>nf(x)+' $';
+const signed=x=>(x>0?'+':x<0?'−':'')+nf(Math.abs(x))+' $';
+const hhmm=ts=>new Date(ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s);
+
+/* ============ Telegram ============ */
+async function tg(text){
+  const {tgToken,tgChat}=S.cfg;
+  if(!tgToken||!tgChat)return false;
+  try{
+    const r=await fetch('https://api.telegram.org/bot'+encodeURIComponent(tgToken)+'/sendMessage',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:tgChat,text})});
+    return r.ok;
+  }catch(e){return false}
+}
+
+/* ============ Prix Binance (données publiques, sans clé) ============ */
+const HOSTS=['https://api.binance.com','https://data-api.binance.vision'];
+async function klines(sym){
+  let last;
+  for(const h of HOSTS){
+    try{
+      const r=await fetch(h+'/api/v3/klines?symbol='+sym+'&interval=15m&limit=120');
+      if(!r.ok)throw new Error('http '+r.status);
+      const a=await r.json();
+      return a.map(k=>({t:k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5]}));
+    }catch(e){last=e}
+  }
+  throw last;
+}
+
+/* ============ Agent 1 : l'Analyste ============ */
+const sma=(a,n)=>a.slice(-n).reduce((x,y)=>x+y,0)/n;
+function rsi(c,n=14){
+  let g=0,l=0;
+  for(let i=c.length-n;i<c.length;i++){const d=c[i]-c[i-1];d>=0?g+=d:l-=d}
+  if(l===0)return 100;
+  return 100-100/(1+g/l);
+}
+function atr(cs,n=14){
+  let s=0;
+  for(let i=cs.length-n;i<cs.length;i++){
+    const p=cs[i-1].c;
+    s+=Math.max(cs[i].h-cs[i].l,Math.abs(cs[i].h-p),Math.abs(cs[i].l-p));
+  }
+  return s/n;
+}
+function analyse(sym,cs){
+  const closed=cs.slice(0,-1);
+  const closes=closed.map(x=>x.c);
+  const price=cs[cs.length-1].c;
+  const s20=sma(closes,20),s50=sma(closes,50);
+  const r=rsi(closes),a=atr(closed);
+  const vols=closed.map(x=>x.v);
+  const vr=vols[vols.length-1]/sma(vols,20);
+  const up=s20>s50&&price>s20;
+  const rsiOk=r>=45&&r<=65;
+  const volOk=vr>=0.8;
+  const calm=a/price<0.012;
+  const signal=up&&rsiOk&&volOk&&calm;
+  const score=(up?40:0)+(rsiOk?30:0)+(volOk?15:0)+(calm?15:0);
+  let why;
+  if(signal)why='Hausse claire, bon moment pour acheter.';
+  else if(!up)why='Pas de hausse claire, j\'attends.';
+  else if(r>65)why='Le prix a trop monté, j\'attends une pause.';
+  else if(r<45)why='La hausse n\'est pas assez forte.';
+  else if(!volOk)why='Peu d\'échanges en ce moment.';
+  else why='Marché trop agité, je ne prends aucun risque.';
+  return {sym,price,atr:a,rsi:r,signal,score,why};
+}
+
+/* ============ Agent 3 : le Contrôleur ============ */
+function roll(){
+  if(S.dayKey!==dkey()){
+    if(S.dayTrades>0)tg('Bilan de la veille : '+S.dayTrades+' trade(s), résultat '+signed(S.dayPnl)+'. Solde (test) : '+money(S.bal));
+    S.dayKey=dkey();S.dayLosses=0;S.dayPnl=0;S.dayTrades=0;
+  }
+  if(S.weekKey!==wkey()){S.weekKey=wkey();S.weekPnl=0}
+}
+function gate(){
+  const c=S.cfg,h=new Date().getHours();
+  if(S.stopped)return{ok:false,tone:'bad',reason:'Le bouton STOP est actif. Aucun trade tant que tu ne relances pas.'};
+  if(S.dayLosses>=c.maxLossDay)return{ok:false,tone:'bad',reason:S.dayLosses+' pertes aujourd\'hui. Pause jusqu\'à demain.'};
+  if(S.weekPnl<=-S.start*c.weekLimit/100)return{ok:false,tone:'bad',reason:'Limite de perte de la semaine atteinte. Pause jusqu\'à lundi.'};
+  if(S.pos)return{ok:false,tone:'info',reason:'Un trade est en cours. Je le surveille.'};
+  if(h<c.startH||h>=c.endH)return{ok:false,tone:'warn',reason:'Hors des heures de trading ('+c.startH+'h à '+c.endH+'h).'};
+  return{ok:true,tone:'good',reason:'Feu vert. Risque de '+nf(c.riskPct,1)+' % du capital par trade.'};
+}
+
+/* ============ Agent 2 : le Trader ============ */
+function openTrade(a){
+  const c=S.cfg;
+  const entry=a.price;
+  const sl=entry-1.5*a.atr;
+  const tp=entry+(entry-sl)*c.rr;
+  const risk=S.bal*c.riskPct/100;
+  let qty=risk/(entry-sl);
+  const maxNotional=S.bal*0.25;
+  if(qty*entry>maxNotional)qty=maxNotional/entry;
+  S.pos={sym:a.sym,entry,sl,tp,qty,ts:Date.now()};
+  tg('Achat '+NAMES[a.sym]+' à '+nf(entry)+' $. Stop loss '+nf(sl)+' $, objectif '+nf(tp)+' $. (mode test)');
+}
+function closeTrade(exit,reason){
+  const p=S.pos;if(!p)return;
+  const fees=p.qty*p.entry*0.001+p.qty*exit*0.001;
+  const pnl=(exit-p.entry)*p.qty-fees;
+  S.bal+=pnl;S.dayPnl+=pnl;S.weekPnl+=pnl;S.dayTrades++;
+  if(pnl<0)S.dayLosses++;
+  S.trades.unshift({sym:p.sym,open:p.ts,close:Date.now(),entry:p.entry,exit,pnl,reason});
+  if(S.trades.length>200)S.trades.length=200;
+  S.pos=null;
+  tg((pnl>=0?'Gain ':'Perte ')+signed(pnl)+' sur '+NAMES[p.sym]+' ('+reason+'). Solde (test) : '+money(S.bal)+'. Pertes du jour : '+S.dayLosses+'/'+S.cfg.maxLossDay);
+}
+function manage(r){
+  const p=S.pos,price=r.a.price;
+  const after=r.cs.filter(c=>c.t>=p.ts);
+  const lo=Math.min(price,...after.map(c=>c.l));
+  const hi=Math.max(price,...after.map(c=>c.h));
+  if(lo<=p.sl)closeTrade(p.sl,'Stop loss');
+  else if(hi>=p.tp)closeTrade(p.tp,'Objectif atteint');
+  else if(Date.now()-p.ts>6*3600e3)closeTrade(price,'Temps écoulé');
+}
+
+/* ============ Boucle principale ============ */
+async function tick(){
+  if(V.busy)return;
+  V.busy=true;
+  try{
+    roll();
+    const out=[];let failed=false;
+    for(const sym of Object.keys(NAMES)){
+      if(!S.cfg.syms[sym])continue;
+      try{const cs=await klines(sym);out.push({sym,cs,a:analyse(sym,cs)})}
+      catch(e){failed=true}
+    }
+    V.analyses=out.map(x=>x.a);
+    V.err=failed&&out.length===0;
+    if(S.pos){
+      const r=out.find(x=>x.sym===S.pos.sym);
+      if(r)manage(r);
+    }
+    V.gate=gate();
+    if(!S.pos&&V.gate.ok){
+      const best=out.filter(x=>x.a.signal).sort((x,y)=>y.a.score-x.a.score)[0];
+      if(best){openTrade(best.a);V.gate=gate()}
+    }
+    V.last=Date.now();
+    save();
+  }finally{V.busy=false}
+  if(V.tab!=='settings')render();else renderChrome();
+}
+
+/* ============ Affichage ============ */
+function renderChrome(){
+  const mode=S.stopped?['stop','Arrêté']:['run','Test en cours'];
+  const todayCls=S.dayPnl>0?'up':S.dayPnl<0?'down':'';
+  $('#top').innerHTML=
+    '<div class="top-row"><span class="brand">TrioTrade</span><span class="badge '+mode[0]+'">'+mode[1]+', argent fictif</span></div>'+
+    '<div class="bal-label">Solde du test</div>'+
+    '<div class="bal num">'+money(S.bal)+'</div>'+
+    '<div class="top-stats">'+
+      '<div><span>Aujourd\'hui</span><b class="num '+todayCls+'">'+signed(S.dayPnl)+'</b></div>'+
+      '<div><span>Cette semaine</span><b class="num '+(S.weekPnl>0?'up':S.weekPnl<0?'down':'')+'">'+signed(S.weekPnl)+'</b></div>'+
+    '</div>';
+  const b=$('#stopbtn');
+  b.textContent=S.stopped?'Relancer le trading':'STOP : tout arrêter';
+  b.classList.toggle('resume',S.stopped);
+  document.querySelectorAll('.tab').forEach(t=>{
+    if(t.dataset.tab===V.tab)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');
+  });
+}
+
+function agentsHTML(){
+  const c=S.cfg,g=V.gate;
+  let analyst;
+  if(V.err)analyst='<p class="tone-bad">Je n\'arrive pas à lire les prix de Binance. Vérifie ta connexion internet.</p>';
+  else if(!V.analyses.length)analyst='<p>Je lis le marché...</p>';
+  else{
+    const best=[...V.analyses].sort((x,y)=>y.score-x.score)[0];
+    analyst='<p>'+(best.signal?'<span class="tone-good">Occasion repérée sur '+NAMES[best.sym]+'.</span>':'Pas d\'occasion pour le moment.')+'</p>'+
+      '<div class="coins">'+V.analyses.map(a=>
+        '<div class="coin"><span>'+NAMES[a.sym]+'<span class="chip '+(a.signal?'good':'wait')+'">'+(a.signal?'Acheter':'Attendre')+'</span></span><span class="v num">'+nf(a.price)+' $</span></div>'+
+        '<div style="font-size:13px;color:var(--ink-2);padding:0 4px 4px">'+esc(a.why)+'</div>'
+      ).join('')+'</div>';
+  }
+  let trader;
+  if(S.pos)trader='<p>En position sur '+NAMES[S.pos.sym]+' depuis '+hhmm(S.pos.ts)+'.</p>';
+  else if(S.stopped)trader='<p>À l\'arrêt.</p>';
+  else trader='<p>J\'attends une occasion de l\'Analyste et l\'accord du Contrôleur.</p>';
+  const tone=g.tone==='bad'?'tone-bad':g.tone==='good'?'tone-good':g.tone==='warn'?'tone-warn':'';
+  return '<div class="card relay">'+
+    '<div class="agent"><div class="dot a">A</div><div><h3>Analyste</h3>'+analyst+'</div></div>'+
+    '<div class="agent"><div class="dot t">T</div><div><h3>Trader</h3>'+trader+'</div></div>'+
+    '<div class="agent"><div class="dot c">C</div><div><h3>Contrôleur</h3><p class="'+tone+'">'+esc(g.reason)+'</p></div></div>'+
+  '</div>';
+}
+function posHTML(){
+  const p=S.pos;if(!p)return'';
+  const cur=(V.analyses.find(a=>a.sym===p.sym)||{}).price||p.entry;
+  const live=(cur-p.entry)*p.qty;
+  return '<h2>Trade en cours</h2><div class="card">'+
+    '<b>'+NAMES[p.sym]+'</b> <span class="'+(live>=0?'gain':'loss')+' num" style="font-weight:800;float:right">'+signed(live)+'</span>'+
+    '<div class="pos-grid">'+
+      '<div><span>Prix d\'achat</span><b class="num">'+nf(p.entry)+' $</b></div>'+
+      '<div><span>Prix actuel</span><b class="num">'+nf(cur)+' $</b></div>'+
+      '<div><span>Stop loss (sortie si perte)</span><b class="num">'+nf(p.sl)+' $</b></div>'+
+      '<div><span>Objectif de gain</span><b class="num">'+nf(p.tp)+' $</b></div>'+
+    '</div></div>';
+}
+function limitsHTML(){
+  const c=S.cfg;
+  const pips=Array.from({length:c.maxLossDay},(_,i)=>'<span class="pip '+(i<S.dayLosses?'on':'')+'"></span>').join('');
+  const wmax=S.start*c.weekLimit/100;
+  const wl=Math.min(100,Math.max(0,-S.weekPnl/wmax*100));
+  return '<h2>Limites de sécurité</h2><div class="card">'+
+    '<div class="limit"><span>Pertes aujourd\'hui ('+S.dayLosses+' sur '+c.maxLossDay+')</span><span class="pips">'+pips+'</span></div>'+
+    '<div class="limit"><span>Perte max de la semaine ('+c.weekLimit+' %)</span><span class="bar"><i style="width:'+wl+'%"></i></span></div>'+
+    '<div class="limit"><span>Heures de trading</span><b>'+c.startH+'h à '+c.endH+'h</b></div>'+
+  '</div>';
+}
+function homeHTML(){
+  return '<div class="note">Cette version trade avec de l\'argent fictif, sur les vrais prix de Binance. Garde l\'application ouverte pour qu\'elle travaille.</div>'+
+    '<h2 style="margin-top:4px">Les 3 agents</h2>'+agentsHTML()+posHTML()+limitsHTML()+
+    '<p style="text-align:center;color:var(--ink-2);font-size:13px;margin-top:18px">'+(V.last?'Dernière mise à jour à '+hhmm(V.last):'')+'</p>';
+}
+function journalHTML(){
+  const t=S.trades,n=t.length,wins=t.filter(x=>x.pnl>0).length;
+  const total=t.reduce((s,x)=>s+x.pnl,0);
+  const rate=n?Math.round(wins/n*100)+' %':'–';
+  const list=n?t.map(x=>
+    '<div class="tr"><div><b>'+NAMES[x.sym]+'</b><small>'+esc(x.reason)+', '+new Date(x.close).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' à '+hhmm(x.close)+'</small></div>'+
+    '<div class="amt num '+(x.pnl>=0?'gain':'loss')+'">'+signed(x.pnl)+'</div></div>').join('')
+    :'<div class="empty">Aucun trade pour le moment. Les trades apparaîtront ici dès que l\'Analyste trouvera une occasion.</div>';
+  return '<h2 style="margin-top:4px">Résultats du test</h2>'+
+    '<div class="stats">'+
+      '<div class="stat"><span>Trades</span><b class="num">'+n+'</b></div>'+
+      '<div class="stat"><span>Réussis</span><b class="num">'+rate+'</b></div>'+
+      '<div class="stat"><span>Total</span><b class="num '+(total>=0?'gain':'loss')+'">'+signed(total)+'</b></div>'+
+    '</div><h2>Historique</h2><div class="card">'+list+'</div>';
+}
+function opt(vals,cur,fmt){return vals.map(v=>'<option value="'+v+'"'+(v==cur?' selected':'')+'>'+fmt(v)+'</option>').join('')}
+function settingsHTML(){
+  const c=S.cfg;
+  const hours=Array.from({length:24},(_,i)=>i);
+  return '<h2 style="margin-top:4px">Capital et risque</h2><div class="card">'+
+    '<div class="field"><label for="f1">Capital de départ du test (en dollars)</label>'+
+      '<input id="f1" type="number" inputmode="decimal" min="10" value="'+c.capital+'" data-cfg="capital"></div>'+
+    '<div class="field"><label for="f2">Risque par trade</label>'+
+      '<select id="f2" data-cfg="riskPct">'+opt([0.5,1,1.5,2],c.riskPct,v=>nf(v,1)+' % du capital')+'</select>'+
+      '<small>C\'est la perte maximale si le stop loss est touché.</small></div>'+
+    '<div class="field"><label for="f3">Pertes maximum par jour</label>'+
+      '<select id="f3" data-cfg="maxLossDay">'+opt([2,3],c.maxLossDay,v=>v+' pertes, puis arrêt')+'</select></div>'+
+    '<div class="field"><label for="f4">Perte maximum par semaine</label>'+
+      '<select id="f4" data-cfg="weekLimit">'+opt([3,5,8],c.weekLimit,v=>v+' % du capital')+'</select></div>'+
+    '<div class="field"><label>Heures de trading</label><div class="row2">'+
+      '<select aria-label="Début" data-cfg="startH">'+opt(hours,c.startH,v=>'de '+v+'h')+'</select>'+
+      '<select aria-label="Fin" data-cfg="endH">'+opt(hours,c.endH,v=>'à '+v+'h')+'</select></div></div>'+
+    '<div class="field"><label>Monnaies suivies</label>'+
+      Object.keys(NAMES).map(s=>'<label class="check"><input type="checkbox" data-cfg="sym.'+s+'"'+(c.syms[s]?' checked':'')+'>'+NAMES[s]+'</label>').join('')+'</div>'+
+    '<button class="btn danger" data-act="reset" type="button">Recommencer le test à zéro</button>'+
+  '</div>'+
+
+  '<h2>Messages Telegram</h2><div class="card">'+
+    '<div class="field"><label for="f5">Jeton du bot (token)</label>'+
+      '<input id="f5" type="password" autocomplete="off" value="'+esc(c.tgToken)+'" data-cfg="tgToken"></div>'+
+    '<div class="field"><label for="f6">Identifiant du canal ou du chat</label>'+
+      '<input id="f6" type="text" autocomplete="off" value="'+esc(c.tgChat)+'" data-cfg="tgChat">'+
+      '<small>Tu reçois un message à chaque achat, chaque gain, chaque perte, et un bilan par jour.</small></div>'+
+    '<button class="btn ghost" data-act="tgtest" type="button">Envoyer un message test</button>'+
+    '<p id="tgres" style="margin-top:10px;font-size:14px"></p>'+
+  '</div>'+
+
+  '<h2>Connexion Binance (vrai argent)</h2><div class="card">'+
+    '<p style="margin-bottom:10px">Les prix viennent déjà de Binance, sans clé. Le trading réel sera branché à l\'étape suivante, quand le test aura prouvé sa valeur.</p>'+
+    '<ol class="steps"><li>Dans Binance, crée une clé API.</li><li>Coche seulement le droit de trader.</li><li>Ne coche jamais le droit de retrait.</li></ol>'+
+    '<div class="warnbox">Ne colle ta clé nulle part avant l\'étape suivante.</div>'+
+  '</div>';
+}
+function render(){
+  renderChrome();
+  const v=$('#view');
+  v.innerHTML=V.tab==='home'?homeHTML():V.tab==='journal'?journalHTML():settingsHTML();
+}
+
+/* ============ Actions ============ */
+function setCfg(t){
+  const k=t.dataset.cfg,c=S.cfg;
+  if(k.startsWith('sym.')){
+    c.syms[k.slice(4)]=t.checked;
+    if(!Object.values(c.syms).some(Boolean)){c.syms[k.slice(4)]=true;t.checked=true}
+  }else if(t.type==='number'||t.tagName==='SELECT'){
+    const n=parseFloat(t.value);
+    if(!isNaN(n))c[k]=n;
+    if(k==='capital'&&n<10){c[k]=10;t.value=10}
+  }else c[k]=t.value.trim();
+  save();
+  if(k.startsWith('sym.'))tick();
+}
+async function act(a,el){
+  if(a==='tab'){V.tab=el.dataset.tab;render();window.scrollTo(0,0)}
+  else if(a==='stop'){
+    if(!S.stopped){
+      S.stopped=true;
+      if(S.pos){
+        const cur=(V.analyses.find(x=>x.sym===S.pos.sym)||{}).price||S.pos.entry;
+        closeTrade(cur,'STOP manuel');
+      }
+      tg('STOP activé. Tout est arrêté.');
+    }else{S.stopped=false;tg('Trading relancé.')}
+    V.gate=gate();save();render();
+  }
+  else if(a==='reset'){
+    if(confirm('Recommencer le test ? Le journal et le solde seront remis à zéro.')){
+      const cfg=S.cfg;S={cfg,...fresh(cfg.capital)};save();V.gate=gate();render();tick();
+    }
+  }
+  else if(a==='tgtest'){
+    const out=$('#tgres');out.textContent='Envoi en cours...';
+    const ok=await tg('Test TrioTrade : la connexion Telegram fonctionne.');
+    out.textContent=ok?'Message envoyé. Regarde ton Telegram.':'Échec. Vérifie le jeton et l\'identifiant.';
+    out.style.color=ok?'var(--gain)':'var(--loss)';
+  }
+}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(t)act(t.dataset.act,t)});
+document.addEventListener('change',e=>{const t=e.target.closest('[data-cfg]');if(t)setCfg(t)});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick()});
+
+/* ============ Démarrage ============ */
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+roll();V.gate=gate();render();tick();
+setInterval(tick,20000);
+})();
+</script>
+</body>
+</html>
